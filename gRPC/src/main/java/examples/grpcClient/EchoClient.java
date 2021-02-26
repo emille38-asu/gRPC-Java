@@ -18,6 +18,7 @@ public class EchoClient {
   private final EchoGrpc.EchoBlockingStub blockingStub;
   private final JokeGrpc.JokeBlockingStub blockingStub2;
   private final RegistryGrpc.RegistryBlockingStub blockingStub3;
+  // Likely add line for next service here ie tips Task 1.2
 
   /** Construct client for accessing server using the existing channel. */
   public EchoClient(Channel channel, Channel regChannel) {
@@ -30,6 +31,7 @@ public class EchoClient {
     blockingStub = EchoGrpc.newBlockingStub(channel);
     blockingStub2 = JokeGrpc.newBlockingStub(channel);
     blockingStub3 = RegistryGrpc.newBlockingStub(regChannel);
+    // Add new service code here Task 1.2
   }
 
   public void askServerToParrot(String message) {
@@ -72,6 +74,8 @@ public class EchoClient {
       return;
     }
   }
+
+  // New method here for tips service
 
   public void getServices() {
     GetServicesReq request = GetServicesReq.newBuilder().build();
