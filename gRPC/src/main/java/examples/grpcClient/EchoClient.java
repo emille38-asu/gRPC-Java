@@ -10,6 +10,7 @@ import test.TestProtobuf;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * Client that requests `parrot` method from the `EchoServer`.
@@ -18,7 +19,8 @@ public class EchoClient {
   private final EchoGrpc.EchoBlockingStub blockingStub;
   private final JokeGrpc.JokeBlockingStub blockingStub2;
   private final RegistryGrpc.RegistryBlockingStub blockingStub3;
-  // Likely add line for next service here ie tips Task 1.2
+  private final CalcGrpc.CalcBlockingStub blockingStub4;
+  private final StoryGrpc.StoryBlockingStub blockingStub5;
 
   /** Construct client for accessing server using the existing channel. */
   public EchoClient(Channel channel, Channel regChannel) {
@@ -30,8 +32,9 @@ public class EchoClient {
     // reuse Channels.
     blockingStub = EchoGrpc.newBlockingStub(channel);
     blockingStub2 = JokeGrpc.newBlockingStub(channel);
+    blockingStub4 = CalcGrpc.newBlockingStub(channel);
     blockingStub3 = RegistryGrpc.newBlockingStub(regChannel);
-    // Add new service code here Task 1.2
+    blockingStub5 = StoryGrpc.newBlockingStub(channel);
   }
 
   public void askServerToParrot(String message) {
@@ -75,8 +78,26 @@ public class EchoClient {
     }
   }
 
-  // New method here for tips service
+ // public void askForNumber(double num, double num2){
+  //  CalcRequest request = CalcRequest.newBuilder().setNum((double)num, (double)num2).build();
+  //  CalcResponse response;
 
+   // try {
+   //   // may need switch case to choose between calculations, hardcode for now
+   //   response = blockingStub4.add(request);
+   // } catch (Exception e) {
+   //   System.err.println("RPC failed: " + e);
+   //   return;
+    //}
+   // System.out.println("Your jokes: ");
+  //  for (String joke : response.getJokeList()) {
+   // //  System.out.println("--- " + joke);
+  //  }
+
+ // }
+
+  // New method here for tips service
+  // Needed for activity 1
   public void getServices() {
     GetServicesReq request = GetServicesReq.newBuilder().build();
     ServicesListRes response;
@@ -112,6 +133,110 @@ public class EchoClient {
       return;
     }
   }
+
+  public void jokeService(ManagedChannel channel, ManagedChannel regChannel) throws IOException
+  {
+    EchoClient client = new EchoClient(channel, regChannel);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+      // Reading data using readLine
+      System.out.println("How many jokes would you like?"); // NO ERROR handling of wrong input here.
+      String num = reader.readLine();
+      // calling the joked service from the server with num from user input
+      client.askForJokes(Integer.valueOf(num));
+      // adding a joke to the server
+      client.setJoke("I made a pencil with two erasers. It was pointless.");
+      // showing 6 joked
+      client.askForJokes(Integer.valueOf(6));
+  }
+
+  /***************CalcService */
+
+
+  public void calcService(ManagedChannel channel, ManagedChannel regChannel) throws IOException{
+    EchoClient client = new EchoClient(channel, regChannel);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+      
+      System.out.println("Please enter your input"); // NO ERROR handling of wrong input here.
+      
+      client.addService(32.0);
+  }
+
+  public void addService(double num) {
+    CalcRequest request = CalcRequest.newBuilder().addNum(num).build();
+    CalcResponse response;
+
+    try {
+      response = blockingStub4.add(request);
+      System.out.println(response.getIsSuccess());
+    } catch (Exception e) {
+      System.err.println("RPC failed: " + e);
+      return;
+    }
+    //System.out.println("Your calculation: ");
+    //for (String joke : response.getJokeList()) {
+     // System.out.println(response.getSolution());
+     // System.out.println(response.getIsSuccess());
+     // System.out.println(response.getError());
+    //}
+  }
+
+  public void subtract(double num) {
+    //int number = Integer.parseInt(num);
+    //double number2 = Double.parseDouble(num2);
+    CalcRequest request = CalcRequest.newBuilder().addNum(num).build();
+    CalcResponse response;
+
+    try {
+      response = blockingStub4.add(request);
+    } catch (Exception e) {
+      System.err.println("RPC failed: " + e);
+      return;
+    }
+    System.out.println("Your calculation: ");
+    //for (String joke : response.getJokeList()) {
+      System.out.println(response.getSolution());
+    //}
+  }
+
+  public void multiply(double num) {
+    //int number = Integer.parseInt(num);
+    //double number2 = Double.parseDouble(num2);
+    CalcRequest request = CalcRequest.newBuilder().addNum(num).build();
+    CalcResponse response;
+
+    try {
+      response = blockingStub4.add(request);
+    } catch (Exception e) {
+      System.err.println("RPC failed: " + e);
+      return;
+    }
+    System.out.println("Your calculation: ");
+    //for (String joke : response.getJokeList()) {
+      System.out.println(response.getSolution());
+    //}
+  }
+
+  public void divide(double num) {
+    //int number = Integer.parseInt(num);
+    //double number2 = Double.parseDouble(num2);
+    CalcRequest request = CalcRequest.newBuilder().addNum(num).build();
+    CalcResponse response;
+
+    try {
+      response = blockingStub4.add(request);
+    } catch (Exception e) {
+      System.err.println("RPC failed: " + e);
+      return;
+    }
+    System.out.println("Your calculation: ");
+    //for (String joke : response.getJokeList()) {
+      System.out.println(response.getSolution());
+    //}
+  }
+
+  /***************CalcService */
+
+
 
   public static void main(String[] args) throws Exception {
     if (args.length != 5) {
@@ -176,43 +301,54 @@ public class EchoClient {
       // registry
       // create client
       EchoClient client = new EchoClient(channel, regChannel);
+      // Create other services?
 
       // call the parrot service on the server
       client.askServerToParrot(message);
 
+
+      //Perhaps begin here.  call services
+      System.out.println("Debug");
+      client.getServices();
+      System.out.println("Debug");
+
+      System.out.println("Please choose your service");
+
+
+      // switch case to choose service
+      //client.jokeService(channel, regChannel);
+      client.calcService(channel, regChannel);
+
+      // Condense this into a method
       // ask the user for input how many jokes the user wants
-      BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
+      //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
       // Reading data using readLine
-      System.out.println("How many jokes would you like?"); // NO ERROR handling of wrong input here.
-      String num = reader.readLine();
-
+      //System.out.println("How many jokes would you like?"); // NO ERROR handling of wrong input here.
+      //String num = reader.readLine();
       // calling the joked service from the server with num from user input
-      client.askForJokes(Integer.valueOf(num));
-
+      //client.askForJokes(Integer.valueOf(num));
       // adding a joke to the server
-      client.setJoke("I made a pencil with two erasers. It was pointless.");
-
+      //client.setJoke("I made a pencil with two erasers. It was pointless.");
       // showing 6 joked
-      client.askForJokes(Integer.valueOf(6));
+      //client.askForJokes(Integer.valueOf(6));
 
       // ############### Contacting the registry just so you see how it can be done
 
       // Comment these last Service calls while in Activity 1 Task 1, they are not needed and wil throw issues without the Registry running
       // get thread's services
-      client.getServices();
+      //client.getServices();
 
       // get parrot
-      client.findServer("services.Echo/parrot");
+      //client.findServer("services.Echo/parrot");
       
       // get all setJoke
-      client.findServers("services.Joke/setJoke");
+      //client.findServers("services.Joke/setJoke");
 
       // get getJoke
-      client.findServer("services.Joke/getJoke");
+      //client.findServer("services.Joke/getJoke");
 
       // does not exist
-      client.findServer("random");
+      //client.findServer("random");
 
 
     } finally {
